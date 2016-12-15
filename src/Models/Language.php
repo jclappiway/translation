@@ -1,6 +1,8 @@
-<?php namespace Waavi\Translation\Models;
+<?php
 
-use Illuminate\Database\Eloquent\Model;
+namespace Waavi\Translation\Models;
+
+use Jenssegers\Mongodb\Model as Model;
 
 class Language extends Model
 {
@@ -8,12 +10,14 @@ class Language extends Model
 
     /**
      *  Table name in the database.
+     *
      *  @var string
      */
     protected $table = 'translator_languages';
 
     /**
-     *  List of variables that cannot be mass assigned
+     *  List of variables that cannot be mass assigned.
+     *
      *  @var array
      */
     protected $fillable = ['locale', 'name'];
@@ -35,5 +39,4 @@ class Language extends Model
     {
         return "languages.{$this->locale}";
     }
-
 }
