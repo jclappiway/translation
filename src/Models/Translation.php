@@ -2,7 +2,7 @@
 
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Eloquent extends Model
+class Translation extends Eloquent
 {
     /**
      *  Table name in the database.
