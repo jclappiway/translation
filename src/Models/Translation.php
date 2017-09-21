@@ -1,8 +1,8 @@
 <?php namespace Waavi\Translation\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Translation extends Model
+class Eloquent extends Model
 {
     /**
      *  Table name in the database.

@@ -1,8 +1,8 @@
 <?php namespace Waavi\Translation\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Language extends Model
+class Language extends Eloquent
 {
     use \Illuminate\Database\Eloquent\SoftDeletes;
 
