@@ -15,6 +15,8 @@ class Translation extends Eloquent
      *  @var array
      */
     protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
+    protected $hidden   = ['_id'];
+    protected $appends  = ['id'];
 
     /**
      *  Each translation belongs to a language.
