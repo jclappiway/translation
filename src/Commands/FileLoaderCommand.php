@@ -65,26 +65,9 @@ class FileLoaderCommand extends Command
             $locale = basename($directory);
             if (in_array($locale, $availableLocales)) {
                 $this->loadDirectory($directory, $locale, $namespace);
+            } else {
+                $this->loadLocaleDirectories($directory);
             }
-            if ($locale === 'vendor' && $namespace === '*') {
-                $this->loadVendor($directory);
-            }
-        }
-    }
-
-    /**
-     *  Load all vendor overriden localization packages. Calls loadLocaleDirectories with the appropriate namespace.
-     *
-     *  @param  string  $path   Path to vendor locale root, usually /path/to/laravel/resources/lang/vendor.
-     *  @see    http://laravel.com/docs/5.1/localization#overriding-vendor-language-files
-     *  @return void
-     */
-    public function loadVendor($path)
-    {
-        $directories = $this->files->directories($path);
-        foreach ($directories as $directory) {
-            $namespace = basename($directory);
-            $this->loadLocaleDirectories($directory, $namespace);
         }
     }
 
