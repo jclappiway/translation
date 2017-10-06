@@ -66,7 +66,8 @@ class FileLoaderCommand extends Command
             if (in_array($locale, $availableLocales)) {
                 $this->loadDirectory($directory, $locale, $namespace);
             } else {
-                $this->loadLocaleDirectories($directory);
+                $namespace = basename($directory);
+                $this->loadLocaleDirectories($directory, $namespace);
             }
         }
     }

@@ -14,7 +14,7 @@ class Translation extends Eloquent
      *  List of variables that can be mass assigned
      *  @var array
      */
-    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
+    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable', 'js'];
     protected $hidden   = ['_id'];
     protected $appends  = ['id'];
 

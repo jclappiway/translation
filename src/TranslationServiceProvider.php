@@ -6,6 +6,7 @@ use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServi
 use Waavi\Translation\Cache\RepositoryFactory as CacheRepositoryFactory;
 use Waavi\Translation\Commands\CacheFlushCommand;
 use Waavi\Translation\Commands\FileLoaderCommand;
+use Waavi\Translation\Commands\GenerateI18nCommand;
 use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
@@ -43,6 +44,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         parent::register();
         $this->registerCacheRepository();
         $this->registerFileLoader();
+        $this->registerI18nGenerator();
         $this->registerCacheFlusher();
         $this->app->singleton('translation.uri.localizer', UriLocalizer::class);
         $this->app[\Illuminate\Routing\Router::class]->aliasMiddleware('localize', TranslationMiddleware::class);
@@ -134,6 +136,24 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
         $this->app['command.translator:load'] = $command;
         $this->commands('command.translator:load');
+    }
+
+    /**
+     * Register the translator:load language file loader.
+     *
+     * @return void
+     */
+    protected function registerI18nGenerator()
+    {
+        $app                   = $this->app;
+        $defaultLocale         = $app['config']->get('app.locale');
+        $languageRepository    = $app->make(LanguageRepository::class);
+        $translationRepository = $app->make(TranslationRepository::class);
+        $translationsPath      = $app->basePath() . '/resources/lang';
+        $command               = new GenerateI18nCommand($languageRepository, $translationRepository);
+
+        $this->app['command.translator:generate-i18n'] = $command;
+        $this->commands('command.translator:generate-i18n');
     }
 
     /**

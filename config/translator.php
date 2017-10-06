@@ -38,4 +38,8 @@ return [
         'timeout' => env('TRANSLATION_CACHE_TIMEOUT', 60),
         'suffix'  => env('TRANSLATION_CACHE_SUFFIX', 'translation'),
     ],
+
+    // Gnerate i18n
+    'jsPath'            => '/resources/assets/js/langs/',
+    'jsFile'            => '/resources/assets/js/vue-i18n-locales.generated.js',
 ];
