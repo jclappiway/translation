@@ -5,6 +5,7 @@ use DirectoryIterator;
 use Exception;
 use Illuminate\Console\Command;
 use League\Flysystem\File;
+use Storage;
 use Waavi\Translation\Models\Translation;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
@@ -175,8 +176,7 @@ class GenerateI18nCommand extends Command
             if (!is_dir(dirname($fileToCreate))) {
                 mkdir(dirname($fileToCreate), 0777, true);
             }
-
-            file_put_contents($fileToCreate, $jsBody);
+            Storage::disk('s3')->put("js-translations/" . $fileName . '.js', $jsBody, 'public');
         }
         return $createdFiles;
     }
