@@ -47,7 +47,7 @@ class LanguageRepository extends Repository
      *
      *  @var Config
      */
-    protected $config;
+    public $config;
 
     /**
      *  Constructor

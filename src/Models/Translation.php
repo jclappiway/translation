@@ -1,20 +1,26 @@
-<?php namespace Waavi\Translation\Models;
+<?php
+
+namespace Waavi\Translation\Models;
 
 use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Eloquent extends Model
+class Translation extends Eloquent
 {
     /**
      *  Table name in the database.
+     *
      *  @var string
      */
     protected $table = 'translator_translations';
 
     /**
-     *  List of variables that can be mass assigned
+     *  List of variables that can be mass assigned.
+     *
      *  @var array
      */
-    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
+    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable', 'js'];
+    protected $hidden   = ['_id'];
+    protected $appends  = ['id'];
 
     /**
      *  Each translation belongs to a language.
@@ -25,7 +31,8 @@ class Eloquent extends Model
     }
 
     /**
-     *  Returns the full translation code for an entry: namespace.group.item
+     *  Returns the full translation code for an entry: namespace.group.item.
+     *
      *  @return string
      */
     public function getCodeAttribute()
@@ -34,8 +41,7 @@ class Eloquent extends Model
     }
 
     /**
-     *  Flag this entry as Reviewed
-     *  @return void
+     *  Flag this entry as Reviewed.
      */
     public function flagAsReviewed()
     {
@@ -43,8 +49,7 @@ class Eloquent extends Model
     }
 
     /**
-     *  Set the translation to the locked state
-     *  @return void
+     *  Set the translation to the locked state.
      */
     public function lock()
     {
@@ -52,8 +57,9 @@ class Eloquent extends Model
     }
 
     /**
-     *  Check if the translation is locked
-     *  @return boolean
+     *  Check if the translation is locked.
+     *
+     *  @return bool
      */
     public function isLocked()
     {
