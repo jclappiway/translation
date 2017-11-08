@@ -43,8 +43,8 @@ abstract class TestCase extends Orchestra
      */
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('database.default', 'sqlite');
-        $app['config']->set('database.connections.sqlite', [
+        $app['config']->set('database.default', 'testbench');
+        $app['config']->set('database.connections.testbench', [
             'driver'   => 'sqlite',
             'database' => ':memory:',
             'prefix'   => '',
@@ -58,7 +58,7 @@ abstract class TestCase extends Orchestra
      */
     protected function setUpDatabase($app)
     {
-        $this->artisan('migrate', ['--realpath' => realpath(__DIR__ . '/../database/migrations')]);
+        $this->artisan('migrate');
         // Seed the spanish and english languages
         $languageRepository = \App::make(LanguageRepository::class);
         $languageRepository->create(['locale' => 'en', 'name' => 'English']);
@@ -90,6 +90,15 @@ abstract class TestCase extends Orchestra
         }]);
         \Route::get('/es/locale', ['middleware' => 'localize', function () {
             return \App::getLocale();
+        }]);
+        \Route::get('/api/v1/en/locale', ['middleware' => 'localize:2', function () {
+            return \App::getLocale();
+        }]);
+        \Route::get('/api/v1/es/locale', ['middleware' => 'localize:2', function () {
+            return \App::getLocale();
+        }]);
+        \Route::get('/api/v1/ca/locale', ['middleware' => 'localize:2', function () {
+            return 'Whoops ca';
         }]);
     }
 }

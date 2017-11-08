@@ -50,11 +50,30 @@ trait Translatable
             if (!$this->translationCodeFor($attribute)) {
                 $reflected                                    = new \ReflectionClass($this);
                 $group                                        = 'translatable';
-                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::quickRandom();
+                $item                                         = strtolower($reflected->getShortName()) . '.' . strtolower($attribute) . '.' . Str::random();
                 $this->attributes["{$attribute}_translation"] = "$group.$item";
             }
         }
         return parent::setAttribute($attribute, $value);
+    }
+
+    /**
+     *  Extend parent's attributesToArray so that _translation attributes do not appear in array, and translatable attributes are translated.
+     *
+     *  @return array
+     */
+    public function attributesToArray()
+    {
+        $attributes = parent::attributesToArray();
+
+        foreach ($this->translatableAttributes as $translatableAttribute) {
+            if (isset($attributes[$translatableAttribute])) {
+                $attributes[$translatableAttribute] = $this->translate($translatableAttribute);
+            }
+            unset($attributes["{$translatableAttribute}_translation"]);
+        }
+
+        return $attributes;
     }
 
     /**
@@ -83,6 +102,9 @@ trait Translatable
         return false;
     }
 
+    /**
+     * @param $attribute
+     */
     public function getRawAttribute($attribute)
     {
         return array_get($this->attributes, $attribute, '');
@@ -90,15 +112,14 @@ trait Translatable
 
     /**
      *  Return the translation related to a translatable attribute.
-     *  If a translation does not exist yet, one will be created.
      *
      *  @param  string $attribute
-     *  @return LanguageEntry
+     *  @return Translation
      */
     public function translate($attribute)
     {
-        $translationCode = array_get($this->attributes, "{$attribute}_translation", false);
-        $translation     = $translationCode ? \App::make('translator')->get($translationCode) : false;
+        $translationCode = $this->translationCodeFor($attribute);
+        $translation     = $translationCode ? trans($translationCode) : false;
         return $translation ?: parent::getAttribute($attribute);
     }
 

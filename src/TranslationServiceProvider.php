@@ -1,10 +1,12 @@
-<?php namespace Waavi\Translation;
+<?php
+namespace Waavi\Translation;
 
 use Illuminate\Translation\FileLoader as LaravelFileLoader;
 use Illuminate\Translation\TranslationServiceProvider as LaravelTranslationServiceProvider;
 use Waavi\Translation\Cache\RepositoryFactory as CacheRepositoryFactory;
 use Waavi\Translation\Commands\CacheFlushCommand;
 use Waavi\Translation\Commands\FileLoaderCommand;
+use Waavi\Translation\Commands\GenerateI18nCommand;
 use Waavi\Translation\Loaders\CacheLoader;
 use Waavi\Translation\Loaders\DatabaseLoader;
 use Waavi\Translation\Loaders\FileLoader;
@@ -27,9 +29,7 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         $this->publishes([
             __DIR__ . '/../config/translator.php' => config_path('translator.php'),
         ]);
-        $this->publishes([
-            __DIR__ . '/../database/migrations/' => database_path('migrations'),
-        ], 'migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations/');
     }
 
     /**
@@ -44,9 +44,10 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
         parent::register();
         $this->registerCacheRepository();
         $this->registerFileLoader();
+        $this->registerI18nGenerator();
         $this->registerCacheFlusher();
         $this->app->singleton('translation.uri.localizer', UriLocalizer::class);
-        $this->app[\Illuminate\Routing\Router::class]->middleware('localize', TranslationMiddleware::class);
+        $this->app[\Illuminate\Routing\Router::class]->aliasMiddleware('localize', TranslationMiddleware::class);
         // Fix issue with laravel prepending the locale to localize resource routes:
         $this->app->bind('Illuminate\Routing\ResourceRegistrar', ResourceRegistrar::class);
     }
@@ -70,9 +71,14 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
     {
         $app = $this->app;
         $this->app->singleton('translation.loader', function ($app) {
-            $source        = $app['config']->get('translator.source');
             $defaultLocale = $app['config']->get('app.locale');
             $loader        = null;
+            $source        = $app['config']->get('translator.source');
+            // Default source to 'files' if translations table do not exist:
+            if ($source !== 'files' && app()->environment() !== 'testing') {
+                $source = \Schema::hasTable('translator_languages') && \Schema::hasTable('translator_translations') ? $source : 'files';
+            }
+
             switch ($source) {
                 case 'mixed':
                     $laravelFileLoader = new LaravelFileLoader($app['files'], $app->basePath() . '/resources/lang');
@@ -95,8 +101,6 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
                     break;
             }
             if ($app['config']->get('translator.cache.enabled')) {
-                //$cacheStore      = $app['cache']->getStore();
-                //$cacheRepository = CacheRepositoryFactory::make($cacheStore, $app['config']->get('translator.cache.suffix'));
                 $loader = new CacheLoader($defaultLocale, $app['translation.cache.repository'], $loader, $app['config']->get('translator.cache.timeout'));
             }
             return $loader;
@@ -132,6 +136,24 @@ class TranslationServiceProvider extends LaravelTranslationServiceProvider
 
         $this->app['command.translator:load'] = $command;
         $this->commands('command.translator:load');
+    }
+
+    /**
+     * Register the translator:load language file loader.
+     *
+     * @return void
+     */
+    protected function registerI18nGenerator()
+    {
+        $app                   = $this->app;
+        $defaultLocale         = $app['config']->get('app.locale');
+        $languageRepository    = $app->make(LanguageRepository::class);
+        $translationRepository = $app->make(TranslationRepository::class);
+        $translationsPath      = $app->basePath() . '/resources/lang';
+        $command               = new GenerateI18nCommand($languageRepository, $translationRepository);
+
+        $this->app['command.translator:generate-i18n'] = $command;
+        $this->commands('command.translator:generate-i18n');
     }
 
     /**

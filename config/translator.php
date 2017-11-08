@@ -12,6 +12,7 @@ return [
     | Supported:
     |
     |   'mixed'         Both files and the database are queried for language entries, with files taking priority.
+    |   'mixed_db'      Both files and the database are queried for language entries, with database taking priority.
     |   'database'      Use the database as the exclusive source for language entries.
     |   'files'         Use files as the exclusive source for language entries [Laravel's default].
      */
@@ -37,4 +38,8 @@ return [
         'timeout' => env('TRANSLATION_CACHE_TIMEOUT', 60),
         'suffix'  => env('TRANSLATION_CACHE_SUFFIX', 'translation'),
     ],
+
+    // Gnerate i18n
+    'jsPath'            => '/resources/assets/js/langs/',
+    'jsFile'            => '/resources/assets/js/vue-i18n-locales.generated.js',
 ];

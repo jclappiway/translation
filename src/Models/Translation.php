@@ -2,9 +2,9 @@
 
 namespace Waavi\Translation\Models;
 
-use Jenssegers\Mongodb\Model as Model;
+use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 
-class Translation extends Model
+class Translation extends Eloquent
 {
     /**
      *  Table name in the database.
@@ -18,7 +18,9 @@ class Translation extends Model
      *
      *  @var array
      */
-    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable'];
+    protected $fillable = ['locale', 'namespace', 'group', 'item', 'text', 'unstable', 'js'];
+    protected $hidden   = ['_id'];
+    protected $appends  = ['id'];
 
     /**
      *  Each translation belongs to a language.

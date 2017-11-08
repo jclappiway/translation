@@ -36,9 +36,8 @@ WAAVI is a web development studio based in Madrid, Spain. You can learn more abo
 :---------|:----------
  4.x  	  | 1.0.x
  5.0.x    | 2.0.x
- 5.1.x    | 2.1.x
- 5.2.x    | 2.1.4 and higher
- 5.3.x    | 2.1.5 and higher
+ 5.1.x|5.3.x    | 2.1.x
+ 5.4.x    | 2.2.x and higher
 
 ## Features overview
 
@@ -385,6 +384,19 @@ Every localized route must be prefixed with the current locale:
 	Route::group(['prefix' => \UriLocalizer::localeFromRequest(), 'middleware' => 'localize')], function () {
 	    /* Your routes here */
 	});
+```
+
+Starting on v2.1.6, you may also specify a custom position for the locale segment in your url. For example, if the locale info is the third segment in a URL (/api/v1/es/my_resource), you may use:
+
+```php
+    // For selectively chosen routes:
+    Route::group(['prefix' => 'api/v1'], function() {
+        /** ... Non localized urls here **/
+
+        Route::group(['prefix' => \UriLocalizer::localeFromRequest(2), 'middleware' => 'localize:2')], function () {
+            /* Your localized routes here */
+        });
+    });
 ```
 
 In your views, for routes where the Middleware is active, you may present the user with a menu to switch from the current language to another by using the shared variables. For example:

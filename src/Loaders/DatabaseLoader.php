@@ -39,7 +39,12 @@ class DatabaseLoader extends Loader implements LoaderInterface
      */
     public function loadSource($locale, $group, $namespace = '*')
     {
-        return $this->translationRepository->loadSource($locale, $namespace, $group);
+        $dotArray = $this->translationRepository->loadSource($locale, $namespace, $group);
+        $undot    = [];
+        foreach ($dotArray as $item => $text) {
+            array_set($undot, $item, $text);
+        }
+        return $undot;
     }
 
     /**
@@ -52,5 +57,15 @@ class DatabaseLoader extends Loader implements LoaderInterface
     public function addNamespace($namespace, $hint)
     {
         $this->hints[$namespace] = $hint;
+    }
+
+    /**
+     * Get an array of all the registered namespaces.
+     *
+     * @return array
+     */
+    public function namespaces()
+    {
+        return $this->hints;
     }
 }
