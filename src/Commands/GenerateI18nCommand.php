@@ -18,6 +18,7 @@ class GenerateI18nCommand extends Command
      * @var string
      */
     protected $name = 'translator:generate-i18n';
+    protected $signature = 'translator:generate-i18n {--umd}';
 
     /**
      * The console command description.
@@ -51,8 +52,10 @@ class GenerateI18nCommand extends Command
     {
         $root = base_path() . '/resources/lang/js';
 
+        $umd = $this->option('umd');
+
         $this->exportJsTranslations();
-        $files = $this->generateMultiple($root);
+        $files = $this->generateMultiple($root, $umd);
     }
 
     public function exportJsTranslations()
@@ -125,10 +128,11 @@ class GenerateI18nCommand extends Command
 
     /**
      * @param string $path
+     * @param boolean $umd
      * @return string
      * @throws Exception
      */
-    public function generateMultiple($path)
+    public function generateMultiple($path, $umd = null)
     {
         if (!is_dir($path)) {
             throw new Exception('Directory not found: ' . $path);
@@ -171,11 +175,16 @@ class GenerateI18nCommand extends Command
             $createdFiles .= $fileToCreate . PHP_EOL;
             $jsonLocales = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . PHP_EOL;
 
-            $jsBody = $this->getES6Module($jsonLocales);
+            if (!$umd) {
+                $jsBody = $this->getES6Module($jsonLocales);
+            } else {
+                $jsBody = $this->getUMDModule($jsonLocales);
+            }
 
             if (!is_dir(dirname($fileToCreate))) {
                 mkdir(dirname($fileToCreate), 0777, true);
             }
+
             Storage::disk('s3')->put("js-translations/" . $fileName . '.js', $jsBody, 'public');
         }
         return $createdFiles;
