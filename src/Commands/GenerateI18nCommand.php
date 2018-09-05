@@ -10,6 +10,11 @@ use Waavi\Translation\Models\Translation;
 use Waavi\Translation\Repositories\LanguageRepository;
 use Waavi\Translation\Repositories\TranslationRepository;
 
+/**
+ * @property LanguageRepository languageRepository
+ * @property TranslationRepository translationRepository
+ * @method option($string)
+ */
 class GenerateI18nCommand extends Command
 {
     /**
@@ -25,28 +30,28 @@ class GenerateI18nCommand extends Command
      *
      * @var string
      */
-    protected $description    = "Generate i18n files";
+    protected $description = "Generate i18n files";
     private $availableLocales = [];
-    private $filesToCreate    = [];
+    private $filesToCreate = [];
 
     /**
      *  Create a new mixed loader instance.
      *
-     *  @param  \Waavi\Lang\Providers\LanguageProvider        $languageRepository
-     *  @param  \Waavi\Lang\Providers\LanguageEntryProvider   $translationRepository
-     *  @param  \Illuminate\Foundation\Application            $app
+     * @param LanguageRepository $languageRepository
+     * @param TranslationRepository $translationRepository
      */
     public function __construct(LanguageRepository $languageRepository, TranslationRepository $translationRepository)
     {
         parent::__construct();
-        $this->languageRepository    = $languageRepository;
+        $this->languageRepository = $languageRepository;
         $this->translationRepository = $translationRepository;
     }
 
     /**
      *  Execute the console command.
      *
-     *  @return void
+     * @return void
+     * @throws Exception
      */
     public function fire()
     {
@@ -55,18 +60,27 @@ class GenerateI18nCommand extends Command
         $umd = $this->option('umd');
 
         $this->exportJsTranslations();
-        $files = $this->generateMultiple($root, $umd);
+        $this->generateMultiple($root, $umd);
     }
 
     public function exportJsTranslations()
     {
         $jsTranslations = Translation::where("namespace", "js")->get();
-        $tree           = $this->makeTree($jsTranslations);
+        $tree = $this->makeTree($jsTranslations);
         foreach ($tree as $locale => $groups) {
             foreach ($groups as $key => $group) {
                 $jsTranslations = $group;
-                $path           = resource_path() . '/lang/js/' . $locale . '/' . $key . '.php';
-                $output         = "<?php\n\nreturn " . var_export($jsTranslations, true) . ";\n";
+                $pathPart = resource_path() . '/lang/js/' . $locale;
+                $path = "$pathPart/$key.php";
+                $output = "<?php\n\nreturn " . var_export($jsTranslations, true) . ";\n";
+
+                if (!file_exists($pathPart)) {
+                    mkdir($pathPart;
+                }
+                if (!file_exists($path)) {
+                    fopen($path, 'w');
+                }
+
                 file_put_contents($path, $output);
             }
         }
@@ -74,7 +88,7 @@ class GenerateI18nCommand extends Command
 
     protected function makeTree($translations)
     {
-        $array = array();
+        $array = [];
         foreach ($translations as $translation) {
             array_set($array[$translation->locale][$translation->group], $translation->item, $translation->text);
         }
@@ -93,8 +107,7 @@ class GenerateI18nCommand extends Command
         }
 
         $locales = [];
-        $dir     = new DirectoryIterator($path);
-        $jsBody  = '';
+        $dir = new DirectoryIterator($path);
         foreach ($dir as $fileinfo) {
             if (!$fileinfo->isDot()
                 && !in_array($fileinfo->getFilename(), ['vendor'])
@@ -137,12 +150,10 @@ class GenerateI18nCommand extends Command
         if (!is_dir($path)) {
             throw new Exception('Directory not found: ' . $path);
         }
-        $jsPath       = base_path() . '/resources/assets/js/langs/';
-        $locales      = [];
-        $fileToCreate = '';
+        $jsPath = base_path() . '/resources/assets/js/langs/';
+        $locales = [];
         $createdFiles = '';
-        $dir          = new DirectoryIterator($path);
-        $jsBody       = '';
+        $dir = new DirectoryIterator($path);
         foreach ($dir as $fileinfo) {
             if (!$fileinfo->isDot()
                 && !in_array($fileinfo->getFilename(), ['vendor'])
@@ -193,6 +204,7 @@ class GenerateI18nCommand extends Command
     /**
      * @param string $path
      * @return array
+     * @throws Exception
      */
     private function allocateLocaleJSON($path)
     {
@@ -200,7 +212,7 @@ class GenerateI18nCommand extends Command
         if (pathinfo($path, PATHINFO_EXTENSION) !== 'json') {
             return null;
         }
-        $tmp = (array) json_decode(file_get_contents($path), true);
+        $tmp = (array)json_decode(file_get_contents($path), true);
         if (gettype($tmp) !== "array") {
             throw new Exception('Unexpected data while processing ' . $path);
         }
@@ -211,11 +223,12 @@ class GenerateI18nCommand extends Command
     /**
      * @param string $path
      * @return array
+     * @throws Exception
      */
     private function allocateLocaleArray($path)
     {
-        $data       = [];
-        $dir        = new DirectoryIterator($path);
+        $data = [];
+        $dir = new DirectoryIterator($path);
         $lastLocale = last($this->availableLocales);
         foreach ($dir as $fileinfo) {
             // Do not mess with dotfiles at all.
@@ -227,9 +240,9 @@ class GenerateI18nCommand extends Command
                 // Recursivley iterate through subdirs, until everything is allocated.
 
                 $data[$fileinfo->getFilename()] =
-                $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
+                    $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
             } else {
-                $noExt    = $this->removeExtension($fileinfo->getFilename());
+                $noExt = $this->removeExtension($fileinfo->getFilename());
                 $fileName = $path . '/' . $fileinfo->getFilename();
 
                 // Ignore non *.php files (ex.: .gitignore, vim swap files etc.)
@@ -244,8 +257,8 @@ class GenerateI18nCommand extends Command
                     continue;
                 }
                 if ($lastLocale !== false) {
-                    $root                                        = realpath(base_path() . '/resources/lang/js' . '/' . $lastLocale);
-                    $filePath                                    = $this->removeExtension(str_replace('\\', '_', ltrim(str_replace($root, '', realpath($fileName)), '\\')));
+                    $root = realpath(base_path() . '/resources/lang/js' . '/' . $lastLocale);
+                    $filePath = $this->removeExtension(str_replace('\\', '_', ltrim(str_replace($root, '', realpath($fileName)), '\\')));
                     $this->filesToCreate[$filePath][$lastLocale] = $this->adjustArray($tmp);
                 }
 
