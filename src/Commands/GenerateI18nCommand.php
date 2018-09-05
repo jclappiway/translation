@@ -67,6 +67,13 @@ class GenerateI18nCommand extends Command
                 $jsTranslations = $group;
                 $path           = resource_path() . '/lang/js/' . $locale . '/' . $key . '.php';
                 $output         = "<?php\n\nreturn " . var_export($jsTranslations, true) . ";\n";
+                if(!file_exists(resource_path() . '/lang/js/' . $locale)) {
+                    mkdir(resource_path() . '/lang/js/' . $locale);
+                }
+                if (!file_exists($path)) {
+                    fopen($path, 'w');
+                }
+
                 file_put_contents($path, $output);
             }
         }
@@ -227,7 +234,7 @@ class GenerateI18nCommand extends Command
                 // Recursivley iterate through subdirs, until everything is allocated.
 
                 $data[$fileinfo->getFilename()] =
-                $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
+                    $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
             } else {
                 $noExt    = $this->removeExtension($fileinfo->getFilename());
                 $fileName = $path . '/' . $fileinfo->getFilename();
