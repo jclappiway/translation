@@ -1,4 +1,5 @@
 <?php
+
 namespace Waavi\Translation\Test;
 
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -98,9 +99,6 @@ abstract class TestCase extends Orchestra
         }]);
         \Route::get('/api/v1/ca/locale', ['middleware' => 'localize:2', function () {
             return 'Whoops ca';
-        }]);
-        \Route::post('/welcome', ['middleware' => 'localize', function () {
-            return trans('welcome.title');
         }]);
     }
 }

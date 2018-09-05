@@ -67,13 +67,6 @@ class GenerateI18nCommand extends Command
                 $jsTranslations = $group;
                 $path           = resource_path() . '/lang/js/' . $locale . '/' . $key . '.php';
                 $output         = "<?php\n\nreturn " . var_export($jsTranslations, true) . ";\n";
-                if(!file_exists(resource_path() . '/lang/js/' . $locale)) {
-                    mkdir(resource_path() . '/lang/js/' . $locale);
-                }
-                if (!file_exists($path)) {
-                    fopen($path, 'w');
-                }
-
                 file_put_contents($path, $output);
             }
         }

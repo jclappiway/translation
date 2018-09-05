@@ -1,6 +1,8 @@
 <?php namespace Waavi\Translation\Loaders;
 
-class MixedLoader extends Loader
+use Illuminate\Translation\LoaderInterface;
+
+class MixedLoader extends Loader implements LoaderInterface
 {
     /**
      *  The default locale.
@@ -63,16 +65,6 @@ class MixedLoader extends Loader
         $this->primaryLoader->addNamespace($namespace, $hint);
     }
 
-    /**
-     * Add a new JSON path to the loader.
-     *
-     * @param  string  $path
-     * @return void
-     */
-    public function addJsonPath($path)
-    {
-        //
-    }
 
     /**
      * Get an array of all the registered namespaces.

@@ -1,8 +1,9 @@
 <?php namespace Waavi\Translation\Loaders;
 
+use Illuminate\Translation\LoaderInterface;
 use Waavi\Translation\Cache\CacheRepositoryInterface as Cache;
 
-class CacheLoader extends Loader
+class CacheLoader extends Loader implements LoaderInterface
 {
     /**
      * The default locale.
@@ -77,17 +78,6 @@ class CacheLoader extends Loader
     public function addNamespace($namespace, $hint)
     {
         $this->fallback->addNamespace($namespace, $hint);
-    }
-
-    /**
-     * Add a new JSON path to the loader.
-     *
-     * @param  string  $path
-     * @return void
-     */
-    public function addJsonPath($path)
-    {
-        //
     }
 
     /**
