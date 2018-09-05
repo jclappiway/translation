@@ -75,7 +75,7 @@ class GenerateI18nCommand extends Command
                 $output = "<?php\n\nreturn " . var_export($jsTranslations, true) . ";\n";
 
                 if (!file_exists($pathPart)) {
-                    mkdir($pathPart;
+                    mkdir($pathPart);
                 }
                 if (!file_exists($path)) {
                     fopen($path, 'w');
