@@ -234,7 +234,7 @@ class GenerateI18nCommand extends Command
                 // Recursivley iterate through subdirs, until everything is allocated.
 
                 $data[$fileinfo->getFilename()] =
-                    $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
+                $this->allocateLocaleArray($path . '/' . $fileinfo->getFilename());
             } else {
                 $noExt    = $this->removeExtension($fileinfo->getFilename());
                 $fileName = $path . '/' . $fileinfo->getFilename();
